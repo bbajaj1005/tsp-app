@@ -45,29 +45,29 @@ resource "azurerm_subnet" "private_endpoints" {
 }
 
 # Private DNS Zones
-resource "azurerm_private_dns_zone" "sql" {
-  name                = "privatelink.database.windows.net"
-  resource_group_name = azurerm_resource_group.main.name
-}
+# resource "azurerm_private_dns_zone" "sql" {
+#   name                = "privatelink.database.windows.net"
+#   resource_group_name = azurerm_resource_group.main.name
+# }
 
-resource "azurerm_private_dns_zone" "webapp" {
-  name                = "privatelink.azurewebsites.net"
-  resource_group_name = azurerm_resource_group.main.name
-}
+# resource "azurerm_private_dns_zone" "webapp" {
+#   name                = "privatelink.azurewebsites.net"
+#   resource_group_name = azurerm_resource_group.main.name
+# }
 
-resource "azurerm_private_dns_zone_virtual_network_link" "sql" {
-  name                  = "sql-vnet-link"
-  resource_group_name   = azurerm_resource_group.main.name
-  private_dns_zone_name = azurerm_private_dns_zone.sql.name
-  virtual_network_id    = azurerm_virtual_network.main.id
-}
+# resource "azurerm_private_dns_zone_virtual_network_link" "sql" {
+#   name                  = "sql-vnet-link"
+#   resource_group_name   = azurerm_resource_group.main.name
+#   private_dns_zone_name = azurerm_private_dns_zone.sql.name
+#   virtual_network_id    = azurerm_virtual_network.main.id
+# }
 
-resource "azurerm_private_dns_zone_virtual_network_link" "webapp" {
-  name                  = "webapp-vnet-link"
-  resource_group_name   = azurerm_resource_group.main.name
-  private_dns_zone_name = azurerm_private_dns_zone.webapp.name
-  virtual_network_id    = azurerm_virtual_network.main.id
-}
+# resource "azurerm_private_dns_zone_virtual_network_link" "webapp" {
+#   name                  = "webapp-vnet-link"
+#   resource_group_name   = azurerm_resource_group.main.name
+#   private_dns_zone_name = azurerm_private_dns_zone.webapp.name
+#   virtual_network_id    = azurerm_virtual_network.main.id
+# }
 
 # Azure SQL Server
 resource "azurerm_mssql_server" "main" {
@@ -78,7 +78,7 @@ resource "azurerm_mssql_server" "main" {
   administrator_login           = "sqladmin"
   administrator_login_password  = var.sql_admin_password
   minimum_tls_version           = "1.2"
-  public_network_access_enabled = false
+  public_network_access_enabled = true
 }
 
 resource "azurerm_mssql_database" "main" {
@@ -90,24 +90,24 @@ resource "azurerm_mssql_database" "main" {
 }
 
 # SQL Private Endpoint
-resource "azurerm_private_endpoint" "sql" {
-  name                = "pe-sql-${var.environment}"
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-  subnet_id           = azurerm_subnet.private_endpoints.id
+# resource "azurerm_private_endpoint" "sql" {
+#   name                = "pe-sql-${var.environment}"
+#   location            = azurerm_resource_group.main.location
+#   resource_group_name = azurerm_resource_group.main.name
+#   subnet_id           = azurerm_subnet.private_endpoints.id
 
-  private_service_connection {
-    name                           = "psc-sql"
-    private_connection_resource_id = azurerm_mssql_server.main.id
-    subresource_names              = ["sqlServer"]
-    is_manual_connection           = false
-  }
+#   private_service_connection {
+#     name                           = "psc-sql"
+#     private_connection_resource_id = azurerm_mssql_server.main.id
+#     subresource_names              = ["sqlServer"]
+#     is_manual_connection           = false
+#   }
 
-  private_dns_zone_group {
-    name                 = "sql-dns-zone-group"
-    private_dns_zone_ids = [azurerm_private_dns_zone.sql.id]
-  }
-}
+#   private_dns_zone_group {
+#     name                 = "sql-dns-zone-group"
+#     private_dns_zone_ids = [azurerm_private_dns_zone.sql.id]
+#   }
+# }
 
 # AKS Cluster
 resource "azurerm_kubernetes_cluster" "main" {
@@ -115,7 +115,7 @@ resource "azurerm_kubernetes_cluster" "main" {
   location                = azurerm_resource_group.main.location
   resource_group_name     = azurerm_resource_group.main.name
   dns_prefix              = "akstsp${var.environment}"
-  private_cluster_enabled = true
+  private_cluster_enabled = false
 
   default_node_pool {
     name           = "default"
@@ -164,7 +164,7 @@ resource "azurerm_linux_web_app" "main" {
     "REACT_APP_API_URL" = "http://${azurerm_kubernetes_cluster.main.private_fqdn}"
   }
 
-  virtual_network_subnet_id = azurerm_subnet.webapp.id
+  #virtual_network_subnet_id = azurerm_subnet.webapp.id
 }
 
 # Random suffix for unique names

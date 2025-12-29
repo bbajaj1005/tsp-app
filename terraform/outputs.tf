@@ -28,10 +28,10 @@ output "webapp_url" {
   description = "Web App URL"
 }
 
-output "sql_private_endpoint_ip" {
-  value       = azurerm_private_endpoint.sql.private_service_connection[0].private_ip_address
-  description = "SQL Server private IP"
-}
+# output "sql_private_endpoint_ip" {
+#   value       = azurerm_private_endpoint.sql.private_service_connection[0].private_ip_address
+#   description = "SQL Server private IP"
+# }
 
 output "vnet_name" {
   value       = azurerm_virtual_network.main.name
