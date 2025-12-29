@@ -12,7 +12,7 @@ env:
   TF_BACKEND_RG: POC-Kapil
   TF_BACKEND_SA: tspsa01567rytg
   TF_BACKEND_CONTAINER: tfstate
-  TF_BACKEND_KEY: be/terraform.tfstate
+  TF_BACKEND_KEY: terraform.tfstate
 
 
 jobs:
@@ -35,7 +35,7 @@ jobs:
 
 
       - name: Terraform Init
-        working-directory: infra
+        #working-directory: infra
         run: |
           terraform init \
             -backend-config="resource_group_name=${TF_BACKEND_RG}" \
