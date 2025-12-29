@@ -34,3 +34,5 @@ jobs:
           kubectl set image deployment/backend-api \
             backend-api=${{ secrets.ACR_NAME }}.azurecr.io/backend-api:${{ github.sha }} \
             -n three-tier-app
+
+            
