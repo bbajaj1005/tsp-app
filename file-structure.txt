@@ -1,0 +1,67 @@
+azure-3tier-app/
+│
+├── README.md
+├── .gitignore
+│
+├── terraform/
+│   ├── main.tf
+│   ├── variables.tf
+│   ├── outputs.tf
+│   ├── terraform.tfvars.example
+│   └── providers.tf
+│
+├── backend/
+│   ├── src/
+│   │   └── index.js
+│   ├── Dockerfile
+│   ├── .dockerignore
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── .env.example
+│   └── README.md
+│
+├── frontend/
+│   ├── public/
+│   │   ├── index.html
+│   │   ├── favicon.ico
+│   │   ├── manifest.json
+│   │   └── robots.txt
+│   ├── src/
+│   │   ├── App.js
+│   │   ├── App.css
+│   │   ├── App.test.js
+│   │   ├── index.js
+│   │   ├── index.css
+│   │   └── setupTests.js
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── .env.example
+│   └── README.md
+│
+├── k8s/
+│   ├── namespace.yaml
+│   ├── secret.yaml
+│   ├── configmap.yaml
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   ├── hpa.yaml
+│   └── README.md
+│
+├── scripts/
+│   ├── deploy-infrastructure.sh
+│   ├── build-and-push-backend.sh
+│   ├── deploy-backend.sh
+│   ├── deploy-frontend.sh
+│   └── cleanup.sh
+│
+├── docs/
+│   ├── DEPLOYMENT.md
+│   ├── ARCHITECTURE.md
+│   ├── TROUBLESHOOTING.md
+│   └── API.md
+│
+└── .github/
+    └── workflows/
+        ├── deploy-infrastructure.yml
+        ├── deploy-backend.yml
+        └── deploy-frontend.yml

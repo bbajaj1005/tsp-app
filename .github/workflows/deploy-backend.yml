@@ -1,0 +1,36 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
+      - name: Build and Push to ACR
+        run: |
+          az acr build \
+            --registry ${{ secrets.ACR_NAME }} \
+            --image backend-api:${{ github.sha }} \
+            --file backend/Dockerfile \
+            backend/
+            
+      - name: Deploy to AKS
+        run: |
+          az aks get-credentials \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --name ${{ secrets.AKS_NAME }}
+          kubectl set image deployment/backend-api \
+            backend-api=${{ secrets.ACR_NAME }}.azurecr.io/backend-api:${{ github.sha }} \
+            -n three-tier-app
