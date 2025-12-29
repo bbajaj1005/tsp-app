@@ -107,13 +107,13 @@ resource "azurerm_private_dns_zone_virtual_network_link" "webapp" {
 
 # Azure SQL Server
 resource "azurerm_mssql_server" "main" {
-  name                         = "sql-3tier-${var.environment}-${random_string.suffix.result}"
-  resource_group_name          = azurerm_resource_group.main.name
-  location                     = azurerm_resource_group.main.location
-  version                      = "12.0"
-  administrator_login          = "sqladmin"
-  administrator_login_password = var.sql_admin_password
-  minimum_tls_version          = "1.2"
+  name                          = "sql-3tier-${var.environment}-${random_string.suffix.result}"
+  resource_group_name           = azurerm_resource_group.main.name
+  location                      = azurerm_resource_group.main.location
+  version                       = "12.0"
+  administrator_login           = "sqladmin"
+  administrator_login_password  = var.sql_admin_password
+  minimum_tls_version           = "1.2"
   public_network_access_enabled = false
 }
 
@@ -147,10 +147,10 @@ resource "azurerm_private_endpoint" "sql" {
 
 # AKS Cluster
 resource "azurerm_kubernetes_cluster" "main" {
-  name                = "aks-3tier-${var.environment}"
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-  dns_prefix          = "aks3tier${var.environment}"
+  name                    = "aks-3tier-${var.environment}"
+  location                = azurerm_resource_group.main.location
+  resource_group_name     = azurerm_resource_group.main.name
+  dns_prefix              = "aks3tier${var.environment}"
   private_cluster_enabled = true
 
   default_node_pool {
@@ -165,10 +165,10 @@ resource "azurerm_kubernetes_cluster" "main" {
   }
 
   network_profile {
-    network_plugin    = "azure"
-    network_policy    = "azure"
-    service_cidr      = "10.1.0.0/16"
-    dns_service_ip    = "10.1.0.10"
+    network_plugin = "azure"
+    network_policy = "azure"
+    service_cidr   = "10.1.0.0/16"
+    dns_service_ip = "10.1.0.10"
   }
 }
 
@@ -230,3 +230,6 @@ output "webapp_url" {
 output "aks_get_credentials_command" {
   value = "az aks get-credentials --resource-group ${azurerm_resource_group.main.name} --name ${azurerm_kubernetes_cluster.main.name}"
 }
+
+
+
