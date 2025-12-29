@@ -2,7 +2,7 @@ name: Deploy Infrastructure
 
 on:
   push:
-    branches: [main]
+    branches: [main1]
     paths:
       - 'terraform/**'
   workflow_dispatch:
@@ -35,7 +35,7 @@ jobs:
 
 
       - name: Terraform Init
-        #working-directory: infra
+        working-directory: ./terraform
         run: |
           terraform init \
             -backend-config="resource_group_name=${TF_BACKEND_RG}" \
@@ -45,11 +45,11 @@ jobs:
 
         
       - name: Terraform Plan
-        #working-directory: ./terraform
+        working-directory: ./terraform
         run: terraform plan
         
       - name: Terraform Apply
-        #working-directory: ./terraform
+        working-directory: ./terraform
         run: terraform apply -auto-approve
 
 
