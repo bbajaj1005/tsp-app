@@ -1,12 +1,12 @@
 # Resource Group
 resource "azurerm_resource_group" "main" {
-  name     = "rg-3tier-${var.environment}"
+  name     = "rg-tsp-${var.environment}"
   location = var.location
 }
 
 # Virtual Network
 resource "azurerm_virtual_network" "main" {
-  name                = "vnet-3tier-${var.environment}"
+  name                = "vnet-tsp-${var.environment}"
   address_space       = ["10.0.0.0/16"]
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
@@ -71,7 +71,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "webapp" {
 
 # Azure SQL Server
 resource "azurerm_mssql_server" "main" {
-  name                          = "sql-3tier-${var.environment}-${random_string.suffix.result}"
+  name                          = "sql-tsp-${var.environment}-${random_string.suffix.result}"
   resource_group_name           = azurerm_resource_group.main.name
   location                      = azurerm_resource_group.main.location
   version                       = "12.0"
@@ -82,7 +82,7 @@ resource "azurerm_mssql_server" "main" {
 }
 
 resource "azurerm_mssql_database" "main" {
-  name           = "sqldb-3tier"
+  name           = "sqldb-tsp"
   server_id      = azurerm_mssql_server.main.id
   collation      = "SQL_Latin1_General_CP1_CI_AS"
   sku_name       = "S0"
@@ -111,10 +111,10 @@ resource "azurerm_private_endpoint" "sql" {
 
 # AKS Cluster
 resource "azurerm_kubernetes_cluster" "main" {
-  name                    = "aks-3tier-${var.environment}"
+  name                    = "aks-tsp-${var.environment}"
   location                = azurerm_resource_group.main.location
   resource_group_name     = azurerm_resource_group.main.name
-  dns_prefix              = "aks3tier${var.environment}"
+  dns_prefix              = "akstsp${var.environment}"
   private_cluster_enabled = true
 
   default_node_pool {
@@ -138,7 +138,7 @@ resource "azurerm_kubernetes_cluster" "main" {
 
 # App Service Plan
 resource "azurerm_service_plan" "main" {
-  name                = "asp-3tier-${var.environment}"
+  name                = "asp-tsp-${var.environment}"
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   os_type             = "Linux"
@@ -147,7 +147,7 @@ resource "azurerm_service_plan" "main" {
 
 # Web App
 resource "azurerm_linux_web_app" "main" {
-  name                = "app-3tier-frontend-${var.environment}-${random_string.suffix.result}"
+  name                = "app-tsp-frontend-${var.environment}-${random_string.suffix.result}"
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_service_plan.main.location
   service_plan_id     = azurerm_service_plan.main.id
