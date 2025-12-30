@@ -33,7 +33,8 @@ if (!fs.existsSync(indexPath)) {
 app.use('/api', (req, res) => {
   const backendUrl = new URL(BACKEND_API_URL);
   const queryString = Object.keys(req.query).length > 0 ? '?' + new URLSearchParams(req.query).toString() : '';
-  const targetPath = req.path + queryString;
+  // req.path is /tasks, but backend expects /api/tasks, so we need to include /api
+  const targetPath = '/api' + req.path + queryString;
   
   console.log(`Proxying ${req.method} ${req.path} to ${BACKEND_API_URL}${targetPath}`);
   
