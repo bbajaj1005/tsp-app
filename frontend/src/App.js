@@ -2,14 +2,18 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 
 // Get API URL from environment variable (set at build time) or from window config (runtime)
-// This allows updating the API URL without rebuilding
+// Use relative URLs to go through the frontend proxy (avoids CORS and mixed content issues)
 const getApiUrl = () => {
-  // Check if there's a runtime config (useful for updating without rebuild)
-  if (window.REACT_APP_API_URL) {
+  // If we're in production and have a backend URL configured, use it directly
+  // Otherwise, use relative URLs which will be proxied by the frontend server
+  if (window.REACT_APP_API_URL && !window.REACT_APP_API_URL.startsWith('/')) {
     return window.REACT_APP_API_URL;
   }
-  // Fall back to build-time env var
-  return process.env.REACT_APP_API_URL || 'http://localhost:3001';
+  if (process.env.REACT_APP_API_URL && !process.env.REACT_APP_API_URL.startsWith('/')) {
+    return process.env.REACT_APP_API_URL;
+  }
+  // Use relative URL - will be proxied by frontend server
+  return '';
 };
 
 const API_URL = getApiUrl();
@@ -28,7 +32,8 @@ function App() {
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/api/tasks`);
+      const apiPath = API_URL ? `${API_URL}/api/tasks` : '/api/tasks';
+      const response = await fetch(apiPath);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -49,7 +54,8 @@ function App() {
       console.log('Creating task with URL:', `${API_URL}/api/tasks`);
       console.log('Request body:', newTask);
       
-      const response = await fetch(`${API_URL}/api/tasks`, {
+      const apiPath = API_URL ? `${API_URL}/api/tasks` : '/api/tasks';
+      const response = await fetch(apiPath, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -79,7 +85,8 @@ function App() {
 
   const deleteTask = async (id) => {
     try {
-      const response = await fetch(`${API_URL}/api/tasks/${id}`, {
+      const apiPath = API_URL ? `${API_URL}/api/tasks/${id}` : `/api/tasks/${id}`;
+      const response = await fetch(apiPath, {
         method: 'DELETE',
       });
       if (!response.ok) {
@@ -97,18 +104,44 @@ function App() {
     try {
       setLoading(true);
       setError(null);
-      console.log('Testing connection to:', `${API_URL}/health`);
-      const response = await fetch(`${API_URL}/health`);
+      const healthPath = API_URL ? `${API_URL}/health` : '/health';
+      console.log('Testing connection to:', healthPath);
+      
+      // Try with different options to diagnose the issue
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      const response = await fetch(healthPath, {
+        method: 'GET',
+        mode: 'cors',
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       const data = await response.json();
       console.log('Health check response:', data);
-      setError(`✅ Connection successful! Backend is healthy.`);
-      setTimeout(() => setError(null), 3000);
+      setError(`✅ Connection successful! Backend is healthy. Status: ${data.status}`);
+      setTimeout(() => setError(null), 5000);
     } catch (err) {
       console.error('Connection test failed:', err);
-      setError(`❌ Connection failed: ${err.message}. Check if backend is accessible at ${API_URL}`);
+      let errorMsg = `❌ Connection failed: ${err.message}`;
+      
+      if (err.name === 'AbortError') {
+        errorMsg += ' (Timeout - backend may be unreachable or firewall blocking)';
+      } else if (err.message.includes('Failed to fetch')) {
+        errorMsg += ' (Network error - check CORS, firewall, or backend availability)';
+      }
+      
+      errorMsg += `\n\nBackend URL: ${API_URL}\n\nTroubleshooting:\n1. Check if backend pods are running\n2. Verify LoadBalancer has public IP\n3. Check Network Security Groups allow port 80\n4. Test from command line: curl ${API_URL}/health`;
+      
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

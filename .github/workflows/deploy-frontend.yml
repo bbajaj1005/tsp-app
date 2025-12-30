@@ -164,11 +164,18 @@ jobs:
           
       - name: Configure Web App for Node.js
         run: |
-          # Ensure Node.js version is set
+          # Get the backend URL from previous step
+          BACKEND_URL="${{ env.REACT_APP_API_URL }}"
+          echo "Setting backend API URL: $BACKEND_URL"
+          
+          # Ensure Node.js version is set and configure backend URL
           az webapp config appsettings set \
             --name ${{ secrets.WEBAPP_NAME }} \
             --resource-group ${{ secrets.RESOURCE_GROUP }} \
-            --settings WEBSITE_NODE_DEFAULT_VERSION="18-lts" SCM_DO_BUILD_DURING_DEPLOYMENT="true" || true
+            --settings \
+              WEBSITE_NODE_DEFAULT_VERSION="18-lts" \
+              SCM_DO_BUILD_DURING_DEPLOYMENT="true" \
+              BACKEND_API_URL="$BACKEND_URL" || true
           
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
