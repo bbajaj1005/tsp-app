@@ -133,7 +133,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>Task Manager - Azure 3-Tier App</h1>
+        <h1>TSP Task Manager - All Tasks</h1>
         <div style={{ fontSize: '14px', marginBottom: '10px', color: '#aaa' }}>
           <p>Using relative API URLs (proxied through frontend server)</p>
           <p>Frontend: <code>{window.location.origin}</code></p>
