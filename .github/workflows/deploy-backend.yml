@@ -38,14 +38,40 @@ jobs:
 
       - name: Deploy Kubernetes Manifests
         run: |
-          # Apply namespace, configmap, secret, and service
+          # Apply namespace and configmap
           kubectl apply -f k8s/namespace.yaml
           kubectl apply -f k8s/configmap.yaml
-          kubectl apply -f k8s/secret.yaml || true
+          
+          # Create or update secret with SQL server FQDN
+          # Use SQL_SERVER secret if provided, otherwise construct from SQL_SERVER_NAME
+          if [ -n "${{ secrets.SQL_SERVER }}" ]; then
+            SQL_SERVER_VALUE="${{ secrets.SQL_SERVER }}"
+          elif [ -n "${{ secrets.SQL_SERVER_NAME }}" ]; then
+            SQL_SERVER_VALUE="${{ secrets.SQL_SERVER_NAME }}.database.windows.net"
+          else
+            echo "Warning: SQL_SERVER or SQL_SERVER_NAME secret not found, using placeholder"
+            SQL_SERVER_VALUE="SQL_PRIVATE_IP_HERE"
+          fi
+          
+          SQL_USER_VALUE="${{ secrets.SQL_USER }}"
+          SQL_USER_VALUE="${SQL_USER_VALUE:-sqladmin}"
+          
+          SQL_DATABASE_VALUE="${{ secrets.SQL_DATABASE }}"
+          SQL_DATABASE_VALUE="${SQL_DATABASE_VALUE:-sqldb-tsp}"
+          
+          kubectl create secret generic sql-secret \
+            --from-literal=SQL_SERVER="${SQL_SERVER_VALUE}" \
+            --from-literal=SQL_USER="${SQL_USER_VALUE}" \
+            --from-literal=SQL_PASSWORD="${{ secrets.SQL_PASSWORD }}" \
+            --from-literal=SQL_DATABASE="${SQL_DATABASE_VALUE}" \
+            --namespace=tsp-app \
+            --dry-run=client -o yaml | kubectl apply -f -
+          
+          # Apply service
           kubectl apply -f k8s/service.yaml
           
           # Update deployment image and apply
-          sed "s|YOUR_ACR_NAME.azurecr.io/backend-api:latest|${{ secrets.ACR_NAME }}.azurecr.io/backend-api:${{ github.sha }}|g" k8s/deployment.yaml | kubectl apply -f -
+          sed "s|YOUR_ACR_NAME.azurecr.io/backend-api:latest|${{ secrets.ACR_NAME }}.azurecr.io/backend-api:latest|g" k8s/deployment.yaml | kubectl apply -f -
           
     # # Apply HPA if it exists
     # kubectl apply -f k8s/hpa.yaml || true
