@@ -22,7 +22,7 @@ jobs:
         run: |
           az acr build \
             --registry ${{ secrets.ACR_NAME }} \
-            --image backend-api:${{ github.sha }} \
+            --image backend-api:latest \
             --file backend/Dockerfile \
             backend/
 
