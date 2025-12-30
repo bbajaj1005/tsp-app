@@ -10,11 +10,13 @@ React-based frontend for the task management application.
 4. Open http://localhost:3000
 
 ## Build for Production
+
 ```bash
 npm run build
 ```
 
 ## Deploy to Azure Web App
+
 ```bash
 npm run build
 cd build
