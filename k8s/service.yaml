@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: backend-api-service
-  namespace: three-tier-app
+  namespace: tsp-app
   labels:
     app: backend-api
     tier: backend

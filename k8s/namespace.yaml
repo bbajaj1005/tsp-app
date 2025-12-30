@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: three-tier-app
+  name: tsp-app
   labels:
-    name: three-tier-app
+    name: tsp-app
     environment: development

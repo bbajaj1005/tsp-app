@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend-api
-  namespace: three-tier-app
+  namespace: tsp-app
   labels:
     app: backend-api
     tier: backend

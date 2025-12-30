@@ -26,20 +26,37 @@ jobs:
             --file backend/Dockerfile \
             backend/
 
-      # - name: Create Namespace
-      #   run: |
-      #     kubectl create namespace tsp-app
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
 
-      - name: Deploy to AKS
+      - name: Connect to AKS
         run: |
           az aks get-credentials \
             --resource-group ${{ secrets.RESOURCE_GROUP }} \
-            --name ${{ secrets.AKS_NAME }}
+            --name ${{ secrets.AKS_NAME }} \
+            --overwrite-existing
 
-          kubectl create namespace tsp-app
+      - name: Deploy Kubernetes Manifests
+        run: |
+          # Apply namespace, configmap, secret, and service
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/configmap.yaml
+          kubectl apply -f k8s/secret.yaml || true
+          kubectl apply -f k8s/service.yaml
+          
+          # Update deployment image and apply
+          sed "s|YOUR_ACR_NAME.azurecr.io/backend-api:latest|${{ secrets.ACR_NAME }}.azurecr.io/backend-api:${{ github.sha }}|g" k8s/deployment.yaml | kubectl apply -f -
+          
+          # Apply HPA if it exists
+          kubectl apply -f k8s/hpa.yaml || true
 
+      - name: Update Deployment Image
+        run: |
           kubectl set image deployment/backend-api \
             backend-api=${{ secrets.ACR_NAME }}.azurecr.io/backend-api:${{ github.sha }} \
-            -n tsp-app
+            -n tsp-app || true
+          
+          # Wait for rollout
+          kubectl rollout status deployment/backend-api -n tsp-app
 
             
