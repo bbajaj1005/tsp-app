@@ -70,19 +70,29 @@ jobs:
           # Apply service
           kubectl apply -f k8s/service.yaml
           
-          # Update deployment image and apply
-          sed "s|YOUR_ACR_NAME.azurecr.io/backend-api:latest|${{ secrets.ACR_NAME }}.azurecr.io/backend-api:latest|g" k8s/deployment.yaml | kubectl apply -f -
-          
-    # # Apply HPA if it exists
-    # kubectl apply -f k8s/hpa.yaml || true
+          # Apply deployment (update image reference if needed)
+          sed "s|acrtspdevdt0821.azurecr.io/backend-api:latest|${{ secrets.ACR_NAME }}.azurecr.io/backend-api:latest|g" k8s/deployment.yaml | \
+          sed "s|YOUR_ACR_NAME.azurecr.io/backend-api:latest|${{ secrets.ACR_NAME }}.azurecr.io/backend-api:latest|g" | \
+          kubectl apply -f -
 
-      # - name: Update Deployment Image
-      #   run: |
-      #     kubectl set image deployment/backend-api \
-      #       backend-api=${{ secrets.ACR_NAME }}.azurecr.io/backend-api:${{ github.sha }} \
-      #       -n tsp-app || true
+      - name: Update Deployment Image
+        run: |
+          # Force update the deployment image to trigger a rollout
+          kubectl set image deployment/backend-api \
+            backend-api=${{ secrets.ACR_NAME }}.azurecr.io/backend-api:latest \
+            -n tsp-app
           
-      #     # Wait for rollout
-      #     kubectl rollout status deployment/backend-api -n tsp-app
+          # Add annotation to force rollout (in case image tag is the same)
+          kubectl annotate deployment backend-api \
+            kubectl.kubernetes.io/restartedAt="$(date +%Y-%m-%dT%H:%M:%S%z)" \
+            -n tsp-app --overwrite
+          
+          # Wait for rollout to complete
+          kubectl rollout status deployment/backend-api -n tsp-app --timeout=5m
+          
+          # Verify deployment
+          kubectl get deployment backend-api -n tsp-app
+          echo ""
+          echo "✅ Deployment updated successfully!"
 
             
