@@ -22,10 +22,46 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
+      
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+      
+      - name: Connect to AKS
+        run: |
+          az aks get-credentials \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --name ${{ secrets.AKS_NAME }} \
+            --overwrite-existing
+      
+      - name: Get Backend Service URL
+        id: get-backend-url
+        run: |
+          # Get the backend service IP
+          BACKEND_IP=$(kubectl get svc backend-api-service -n tsp-app -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "")
+          
+          if [ -z "$BACKEND_IP" ]; then
+            # If no external IP, try to get the service cluster IP or use the service DNS name
+            BACKEND_IP=$(kubectl get svc backend-api-service -n tsp-app -o jsonpath='{.spec.clusterIP}' 2>/dev/null || echo "")
+            if [ -n "$BACKEND_IP" ]; then
+              BACKEND_URL="http://${BACKEND_IP}:80"
+            else
+              # Use service DNS name as fallback
+              BACKEND_URL="http://backend-api-service.tsp-app.svc.cluster.local:80"
+            fi
+          else
+            BACKEND_URL="http://${BACKEND_IP}:80"
+          fi
+          
+          echo "Backend URL: $BACKEND_URL"
+          echo "REACT_APP_API_URL=$BACKEND_URL" >> $GITHUB_ENV
+          echo "backend_url=$BACKEND_URL" >> $GITHUB_OUTPUT
           
       - name: Build
         working-directory: ./frontend
+        env:
+          REACT_APP_API_URL: ${{ env.REACT_APP_API_URL || 'http://localhost:3001' }}
         run: |
+          echo "Building with API URL: $REACT_APP_API_URL"
           npm install
           npm run build
           
