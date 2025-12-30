@@ -58,10 +58,17 @@ jobs:
           ls -la ./frontend/build/server.js && echo "✓ server.js found"
           ls -la ./frontend/build/package.json && echo "✓ package.json found"
           
+      - name: Configure Web App for Node.js
+        run: |
+          # Ensure Node.js version is set
+          az webapp config appsettings set \
+            --name ${{ secrets.WEBAPP_NAME }} \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --settings WEBSITE_NODE_DEFAULT_VERSION="18-lts" SCM_DO_BUILD_DURING_DEPLOYMENT="true" || true
+          
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ secrets.WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: ./frontend/build
-          startup-command: 'npm install --production && npm start'
