@@ -47,16 +47,16 @@ jobs:
           # Update deployment image and apply
           sed "s|YOUR_ACR_NAME.azurecr.io/backend-api:latest|${{ secrets.ACR_NAME }}.azurecr.io/backend-api:${{ github.sha }}|g" k8s/deployment.yaml | kubectl apply -f -
           
-          # Apply HPA if it exists
-          kubectl apply -f k8s/hpa.yaml || true
+    # # Apply HPA if it exists
+    # kubectl apply -f k8s/hpa.yaml || true
 
-      - name: Update Deployment Image
-        run: |
-          kubectl set image deployment/backend-api \
-            backend-api=${{ secrets.ACR_NAME }}.azurecr.io/backend-api:${{ github.sha }} \
-            -n tsp-app || true
+      # - name: Update Deployment Image
+      #   run: |
+      #     kubectl set image deployment/backend-api \
+      #       backend-api=${{ secrets.ACR_NAME }}.azurecr.io/backend-api:${{ github.sha }} \
+      #       -n tsp-app || true
           
-          # Wait for rollout
-          kubectl rollout status deployment/backend-api -n tsp-app
+      #     # Wait for rollout
+      #     kubectl rollout status deployment/backend-api -n tsp-app
 
             
