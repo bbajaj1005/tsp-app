@@ -77,21 +77,25 @@ jobs:
 
       - name: Update Deployment Image
         run: |
-          # Force update the deployment image to trigger a rollout
+          # Update the deployment image
           kubectl set image deployment/backend-api \
             backend-api=${{ secrets.ACR_NAME }}.azurecr.io/backend-api:latest \
             -n tsp-app
           
-          # Add annotation to force rollout (in case image tag is the same)
-          kubectl annotate deployment backend-api \
-            kubectl.kubernetes.io/restartedAt="$(date +%Y-%m-%dT%H:%M:%S%z)" \
-            -n tsp-app --overwrite
+          # Force a rollout restart to ensure pods pick up the new image
+          # This is necessary when using 'latest' tag since Kubernetes may not detect changes
+          kubectl rollout restart deployment/backend-api -n tsp-app
           
           # Wait for rollout to complete
           kubectl rollout status deployment/backend-api -n tsp-app --timeout=5m
           
-          # Verify deployment
+          # Verify deployment and pods
+          echo ""
+          echo "📊 Deployment Status:"
           kubectl get deployment backend-api -n tsp-app
+          echo ""
+          echo "📦 Pod Status:"
+          kubectl get pods -l app=backend-api -n tsp-app
           echo ""
           echo "✅ Deployment updated successfully!"
 
