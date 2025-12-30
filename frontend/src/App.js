@@ -1,22 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
-// Get API URL from environment variable (set at build time) or from window config (runtime)
-// Use relative URLs to go through the frontend proxy (avoids CORS and mixed content issues)
-const getApiUrl = () => {
-  // If we're in production and have a backend URL configured, use it directly
-  // Otherwise, use relative URLs which will be proxied by the frontend server
-  if (window.REACT_APP_API_URL && !window.REACT_APP_API_URL.startsWith('/')) {
-    return window.REACT_APP_API_URL;
-  }
-  if (process.env.REACT_APP_API_URL && !process.env.REACT_APP_API_URL.startsWith('/')) {
-    return process.env.REACT_APP_API_URL;
-  }
-  // Use relative URL - will be proxied by frontend server
-  return '';
-};
-
-const API_URL = getApiUrl();
+// Always use relative URLs - the frontend server will proxy to the backend
+// This avoids CORS, mixed content, and network issues
+const API_URL = '';
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -32,8 +19,7 @@ function App() {
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const apiPath = API_URL ? `${API_URL}/api/tasks` : '/api/tasks';
-      const response = await fetch(apiPath);
+      const response = await fetch('/api/tasks');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -42,7 +28,7 @@ function App() {
       setError(null);
     } catch (err) {
       console.error('Error fetching tasks:', err);
-      setError(`Failed to connect to backend API at ${API_URL}. Error: ${err.message}`);
+      setError(`Failed to connect to backend API. Error: ${err.message}. The request is being proxied through the frontend server.`);
     } finally {
       setLoading(false);
     }
@@ -54,8 +40,7 @@ function App() {
       console.log('Creating task with URL:', `${API_URL}/api/tasks`);
       console.log('Request body:', newTask);
       
-      const apiPath = API_URL ? `${API_URL}/api/tasks` : '/api/tasks';
-      const response = await fetch(apiPath, {
+      const response = await fetch('/api/tasks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -85,8 +70,7 @@ function App() {
 
   const deleteTask = async (id) => {
     try {
-      const apiPath = API_URL ? `${API_URL}/api/tasks/${id}` : `/api/tasks/${id}`;
-      const response = await fetch(apiPath, {
+      const response = await fetch(`/api/tasks/${id}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
@@ -104,14 +88,13 @@ function App() {
     try {
       setLoading(true);
       setError(null);
-      const healthPath = API_URL ? `${API_URL}/health` : '/health';
-      console.log('Testing connection to:', healthPath);
+      console.log('Testing connection to: /health (proxied to backend)');
       
       // Try with different options to diagnose the issue
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
       
-      const response = await fetch(healthPath, {
+      const response = await fetch('/health', {
         method: 'GET',
         mode: 'cors',
         signal: controller.signal,
@@ -139,7 +122,7 @@ function App() {
         errorMsg += ' (Network error - check CORS, firewall, or backend availability)';
       }
       
-      errorMsg += `\n\nBackend URL: ${API_URL}\n\nTroubleshooting:\n1. Check if backend pods are running\n2. Verify LoadBalancer has public IP\n3. Check Network Security Groups allow port 80\n4. Test from command line: curl ${API_URL}/health`;
+      errorMsg += `\n\nTroubleshooting:\n1. Check frontend server logs for proxy errors\n2. Verify backend is accessible from frontend server\n3. Check if backend pods are running: kubectl get pods -n tsp-app\n4. Test backend directly: curl http://52.160.32.57:80/health`;
       
       setError(errorMsg);
     } finally {
@@ -152,8 +135,9 @@ function App() {
       <header className="App-header">
         <h1>Task Manager - Azure 3-Tier App</h1>
         <div style={{ fontSize: '14px', marginBottom: '10px', color: '#aaa' }}>
-          <p>Backend API URL: <code>{API_URL}</code></p>
-          <p>Current URL: <code>{window.location.origin}</code></p>
+          <p>Using relative API URLs (proxied through frontend server)</p>
+          <p>Frontend: <code>{window.location.origin}</code></p>
+          <p>Backend: <code>{process.env.REACT_APP_API_URL || window.REACT_APP_API_URL || 'Configured in server'}</code></p>
         </div>
         
         {error && (

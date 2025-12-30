@@ -4,8 +4,14 @@ const fs = require('fs');
 const http = require('http');
 const app = express();
 
-// Backend API URL - can be set via environment variable
-const BACKEND_API_URL = process.env.BACKEND_API_URL || 'http://52.160.32.57:80';
+// Backend API URL - must be set via environment variable BACKEND_API_URL
+// If not set, will try to use the default (update this if backend IP changes)
+const BACKEND_API_URL = process.env.BACKEND_API_URL || process.env.REACT_APP_API_URL || 'http://52.160.32.57:80';
+
+if (!process.env.BACKEND_API_URL && !process.env.REACT_APP_API_URL) {
+  console.warn('⚠️ WARNING: BACKEND_API_URL not set. Using default:', BACKEND_API_URL);
+  console.warn('   Set BACKEND_API_URL environment variable in Azure Web App settings.');
+}
 
 // Log startup information
 console.log('Starting Express server...');
@@ -54,8 +60,26 @@ app.use('/api', (req, res) => {
   });
   
   proxyReq.on('error', (err) => {
-    console.error('Proxy error:', err);
-    res.status(502).json({ error: 'Backend service unavailable', message: err.message, backendUrl: BACKEND_API_URL });
+    console.error('❌ Proxy error:', err.message);
+    console.error('   Backend URL:', BACKEND_API_URL);
+    console.error('   Target path:', targetPath);
+    console.error('   Error code:', err.code);
+    res.status(502).json({ 
+      error: 'Backend service unavailable', 
+      message: err.message,
+      code: err.code,
+      backendUrl: BACKEND_API_URL,
+      troubleshooting: 'Check if backend is accessible from frontend server and Network Security Groups allow connections'
+    });
+  });
+  
+  proxyReq.setTimeout(10000, () => {
+    console.error('❌ Proxy timeout after 10 seconds');
+    proxyReq.destroy();
+    res.status(504).json({ 
+      error: 'Backend service timeout', 
+      backendUrl: BACKEND_API_URL 
+    });
   });
   
   // Handle request body
