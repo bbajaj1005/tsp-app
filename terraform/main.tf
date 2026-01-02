@@ -176,6 +176,7 @@ resource "azurerm_application_insights" "ai" {
 
 }
 
+
 # Web App
 resource "azurerm_linux_web_app" "main" {
   name                = "app-tsp-frontend-${var.environment}-${random_string.suffix.result}"
