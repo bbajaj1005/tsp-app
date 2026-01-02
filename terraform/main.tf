@@ -18,6 +18,12 @@ resource "azurerm_subnet" "aks" {
   resource_group_name  = azurerm_resource_group.main.name
   virtual_network_name = azurerm_virtual_network.main.name
   address_prefixes     = ["10.0.1.0/24"]
+  service_endpoints = [
+    "Microsoft.Sql",
+    "Microsoft.Storage",
+    "Microsoft.KeyVault"
+  ]
+
 }
 
 resource "azurerm_subnet" "webapp" {
@@ -35,6 +41,12 @@ resource "azurerm_subnet" "webapp" {
       ]
     }
   }
+  service_endpoints = [
+    "Microsoft.Sql",
+    "Microsoft.Storage",
+    "Microsoft.KeyVault"
+  ]
+
 }
 
 resource "azurerm_subnet" "private_endpoints" {
