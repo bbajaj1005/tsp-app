@@ -158,6 +158,17 @@ resource "azurerm_service_plan" "main" {
   sku_name            = "P1v2"
 }
 
+
+resource "azurerm_application_insights" "ai" {
+  name                = "app-insights-${var.environment}-${random_string.suffix.result}"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  application_type  = "web"
+  retention_in_days = 30
+
+}
+
 # Web App
 resource "azurerm_linux_web_app" "main" {
   name                = "app-tsp-frontend-${var.environment}-${random_string.suffix.result}"
@@ -174,10 +185,12 @@ resource "azurerm_linux_web_app" "main" {
   }
 
   app_settings = {
-    "REACT_APP_API_URL"              = "http://${azurerm_kubernetes_cluster.main.private_fqdn}"
-    "SCM_DO_BUILD_DURING_DEPLOYMENT" = "true"
-    "WEBSITE_NODE_DEFAULT_VERSION"   = "18-lts"
-    "BACKEND_API_URL"                = "http://52.160.32.57:80"
+    "REACT_APP_API_URL"                     = "http://${azurerm_kubernetes_cluster.main.private_fqdn}"
+    "SCM_DO_BUILD_DURING_DEPLOYMENT"        = "true"
+    "WEBSITE_NODE_DEFAULT_VERSION"          = "18-lts"
+    "BACKEND_API_URL"                       = "http://52.160.32.57:80"
+    "APPINSIGHTS_INSTRUMENTATIONKEY"        = azurerm_application_insights.ai.instrumentation_key
+    "APPLICATIONINSIGHTS_CONNECTION_STRING" = azurerm_application_insights.ai.connection_string
 
   }
 

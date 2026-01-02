@@ -67,3 +67,7 @@ output "aks_kubelet_object_id" {
   value       = azurerm_kubernetes_cluster.main.kubelet_identity[0].object_id
   description = "AKS kubelet managed identity object ID used for AcrPull role assignment."
 }
+
+output "app_id" {
+  value = azurerm_application_insights.ai.app_id
+}
