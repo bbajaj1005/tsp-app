@@ -60,62 +60,62 @@ resource "azurerm_monitor_metric_alert" "aks_node_memory" {
 }
 
 # Alert: Pod CPU Usage
-resource "azurerm_monitor_metric_alert" "aks_pod_cpu" {
-  name                = "aks-pod-cpu-${var.environment}"
-  resource_group_name = azurerm_resource_group.main.name
-  scopes              = [azurerm_kubernetes_cluster.main.id]
-  description         = "Alert when AKS pod CPU usage exceeds threshold"
-  severity            = 2
-  enabled             = true
-  auto_mitigate       = true
-  frequency           = "PT1M"
-  window_size         = "PT5M"
+# resource "azurerm_monitor_metric_alert" "aks_pod_cpu" {
+#   name                = "aks-pod-cpu-${var.environment}"
+#   resource_group_name = azurerm_resource_group.main.name
+#   scopes              = [azurerm_kubernetes_cluster.main.id]
+#   description         = "Alert when AKS pod CPU usage exceeds threshold"
+#   severity            = 2
+#   enabled             = true
+#   auto_mitigate       = true
+#   frequency           = "PT1M"
+#   window_size         = "PT5M"
 
-  criteria {
-    metric_namespace = "Microsoft.ContainerService/managedClusters"
-    metric_name      = "pod_cpu_usage_percentage"
-    aggregation      = "Average"
-    operator         = "GreaterThan"
-    threshold        = 80 # 80% CPU
-  }
+#   criteria {
+#     metric_namespace = "Microsoft.ContainerService/managedClusters"
+#     metric_name      = "pod_cpu_usage_percentage"
+#     aggregation      = "Average"
+#     operator         = "GreaterThan"
+#     threshold        = 80 # 80% CPU
+#   }
 
-  action {
-    action_group_id = azurerm_monitor_action_group.webapp_alerts.id
-  }
+#   action {
+#     action_group_id = azurerm_monitor_action_group.webapp_alerts.id
+#   }
 
-  tags = {
-    environment = var.environment
-  }
-}
+#   tags = {
+#     environment = var.environment
+#   }
+# }
 
-# Alert: Pod Memory Usage
-resource "azurerm_monitor_metric_alert" "aks_pod_memory" {
-  name                = "aks-pod-memory-${var.environment}"
-  resource_group_name = azurerm_resource_group.main.name
-  scopes              = [azurerm_kubernetes_cluster.main.id]
-  description         = "Alert when AKS pod memory usage exceeds threshold"
-  severity            = 2
-  enabled             = true
-  auto_mitigate       = true
-  frequency           = "PT1M"
-  window_size         = "PT5M"
+# # Alert: Pod Memory Usage
+# resource "azurerm_monitor_metric_alert" "aks_pod_memory" {
+#   name                = "aks-pod-memory-${var.environment}"
+#   resource_group_name = azurerm_resource_group.main.name
+#   scopes              = [azurerm_kubernetes_cluster.main.id]
+#   description         = "Alert when AKS pod memory usage exceeds threshold"
+#   severity            = 2
+#   enabled             = true
+#   auto_mitigate       = true
+#   frequency           = "PT1M"
+#   window_size         = "PT5M"
 
-  criteria {
-    metric_namespace = "Microsoft.ContainerService/managedClusters"
-    metric_name      = "pod_memory_working_set_percentage"
-    aggregation      = "Average"
-    operator         = "GreaterThan"
-    threshold        = 80 # 80% Memory
-  }
+#   criteria {
+#     metric_namespace = "Microsoft.ContainerService/managedClusters"
+#     metric_name      = "pod_memory_working_set_percentage"
+#     aggregation      = "Average"
+#     operator         = "GreaterThan"
+#     threshold        = 80 # 80% Memory
+#   }
 
-  action {
-    action_group_id = azurerm_monitor_action_group.webapp_alerts.id
-  }
+#   action {
+#     action_group_id = azurerm_monitor_action_group.webapp_alerts.id
+#   }
 
-  tags = {
-    environment = var.environment
-  }
-}
+#   tags = {
+#     environment = var.environment
+#   }
+# }
 
 # Alert: Failed Pods
 resource "azurerm_monitor_metric_alert" "aks_failed_pods" {
@@ -132,7 +132,7 @@ resource "azurerm_monitor_metric_alert" "aks_failed_pods" {
   criteria {
     metric_namespace = "Microsoft.ContainerService/managedClusters"
     metric_name      = "kube_pod_status_phase"
-    aggregation      = "Count"
+    aggregation      = "Total"
     operator         = "GreaterThan"
     threshold        = 0 # Any failed pods
   }
@@ -147,33 +147,33 @@ resource "azurerm_monitor_metric_alert" "aks_failed_pods" {
 }
 
 # Alert: Container Restarts
-resource "azurerm_monitor_metric_alert" "aks_container_restarts" {
-  name                = "aks-container-restarts-${var.environment}"
-  resource_group_name = azurerm_resource_group.main.name
-  scopes              = [azurerm_kubernetes_cluster.main.id]
-  description         = "Alert when container restarts exceed threshold"
-  severity            = 2
-  enabled             = true
-  auto_mitigate       = true
-  frequency           = "PT1M"
-  window_size         = "PT5M"
+# resource "azurerm_monitor_metric_alert" "aks_container_restarts" {
+#   name                = "aks-container-restarts-${var.environment}"
+#   resource_group_name = azurerm_resource_group.main.name
+#   scopes              = [azurerm_kubernetes_cluster.main.id]
+#   description         = "Alert when container restarts exceed threshold"
+#   severity            = 2
+#   enabled             = true
+#   auto_mitigate       = true
+#   frequency           = "PT1M"
+#   window_size         = "PT5M"
 
-  criteria {
-    metric_namespace = "Microsoft.ContainerService/managedClusters"
-    metric_name      = "kube_pod_container_status_restarts_total"
-    aggregation      = "Total"
-    operator         = "GreaterThan"
-    threshold        = 2 # More than 5 restarts
-  }
+#   criteria {
+#     metric_namespace = "Microsoft.ContainerService/managedClusters"
+#     metric_name      = "kube_pod_container_status_restarts_total"
+#     aggregation      = "Total"
+#     operator         = "GreaterThan"
+#     threshold        = 2 # More than 5 restarts
+#   }
 
-  action {
-    action_group_id = azurerm_monitor_action_group.webapp_alerts.id
-  }
+#   action {
+#     action_group_id = azurerm_monitor_action_group.webapp_alerts.id
+#   }
 
-  tags = {
-    environment = var.environment
-  }
-}
+#   tags = {
+#     environment = var.environment
+#   }
+# }
 
 # Alert: Node Not Ready
 resource "azurerm_monitor_metric_alert" "aks_node_not_ready" {
@@ -190,7 +190,7 @@ resource "azurerm_monitor_metric_alert" "aks_node_not_ready" {
   criteria {
     metric_namespace = "Microsoft.ContainerService/managedClusters"
     metric_name      = "kube_node_status_condition"
-    aggregation      = "Count"
+    aggregation      = "Total"
     operator         = "GreaterThan"
     threshold        = 0 # Any node not ready
   }
@@ -234,91 +234,91 @@ resource "azurerm_monitor_metric_alert" "aks_disk_usage" {
 }
 
 # Alert: Network Errors
-resource "azurerm_monitor_metric_alert" "aks_network_errors" {
-  name                = "aks-network-errors-${var.environment}"
-  resource_group_name = azurerm_resource_group.main.name
-  scopes              = [azurerm_kubernetes_cluster.main.id]
-  description         = "Alert when AKS network errors exceed threshold"
-  severity            = 2
-  enabled             = true
-  auto_mitigate       = true
-  frequency           = "PT1M"
-  window_size         = "PT5M"
+# resource "azurerm_monitor_metric_alert" "aks_network_errors" {
+#   name                = "aks-network-errors-${var.environment}"
+#   resource_group_name = azurerm_resource_group.main.name
+#   scopes              = [azurerm_kubernetes_cluster.main.id]
+#   description         = "Alert when AKS network errors exceed threshold"
+#   severity            = 2
+#   enabled             = true
+#   auto_mitigate       = true
+#   frequency           = "PT1M"
+#   window_size         = "PT5M"
 
-  criteria {
-    metric_namespace = "Microsoft.ContainerService/managedClusters"
-    metric_name      = "node_network_in_errors_total"
-    aggregation      = "Total"
-    operator         = "GreaterThan"
-    threshold        = 10 # More than 10 network errors
-  }
+#   criteria {
+#     metric_namespace = "Microsoft.ContainerService/managedClusters"
+#     metric_name      = "node_network_in_errors_total"
+#     aggregation      = "Total"
+#     operator         = "GreaterThan"
+#     threshold        = 10 # More than 10 network errors
+#   }
 
-  action {
-    action_group_id = azurerm_monitor_action_group.webapp_alerts.id
-  }
+#   action {
+#     action_group_id = azurerm_monitor_action_group.webapp_alerts.id
+#   }
 
-  tags = {
-    environment = var.environment
-  }
-}
+#   tags = {
+#     environment = var.environment
+#   }
+# }
 
 # Alert: Kubelet Errors
-resource "azurerm_monitor_metric_alert" "aks_kubelet_errors" {
-  name                = "aks-kubelet-errors-${var.environment}"
-  resource_group_name = azurerm_resource_group.main.name
-  scopes              = [azurerm_kubernetes_cluster.main.id]
-  description         = "Alert when kubelet errors occur"
-  severity            = 1
-  enabled             = true
-  auto_mitigate       = true
-  frequency           = "PT1M"
-  window_size         = "PT5M"
+# resource "azurerm_monitor_metric_alert" "aks_kubelet_errors" {
+#   name                = "aks-kubelet-errors-${var.environment}"
+#   resource_group_name = azurerm_resource_group.main.name
+#   scopes              = [azurerm_kubernetes_cluster.main.id]
+#   description         = "Alert when kubelet errors occur"
+#   severity            = 1
+#   enabled             = true
+#   auto_mitigate       = true
+#   frequency           = "PT1M"
+#   window_size         = "PT5M"
 
-  criteria {
-    metric_namespace = "Microsoft.ContainerService/managedClusters"
-    metric_name      = "kubelet_runtime_operations_errors_total"
-    aggregation      = "Total"
-    operator         = "GreaterThan"
-    threshold        = 1 # Any kubelet errors
-  }
+#   criteria {
+#     metric_namespace = "Microsoft.ContainerService/managedClusters"
+#     metric_name      = "kubelet_runtime_operations_errors_total"
+#     aggregation      = "Total"
+#     operator         = "GreaterThan"
+#     threshold        = 1 # Any kubelet errors
+#   }
 
-  action {
-    action_group_id = azurerm_monitor_action_group.webapp_alerts.id
-  }
+#   action {
+#     action_group_id = azurerm_monitor_action_group.webapp_alerts.id
+#   }
 
-  tags = {
-    environment = var.environment
-  }
-}
+#   tags = {
+#     environment = var.environment
+#   }
+# }
 
-# Alert: API Server Latency
-resource "azurerm_monitor_metric_alert" "aks_api_server_latency" {
-  name                = "aks-api-server-latency-${var.environment}"
-  resource_group_name = azurerm_resource_group.main.name
-  scopes              = [azurerm_kubernetes_cluster.main.id]
-  description         = "Alert when Kubernetes API server latency is high"
-  severity            = 2
-  enabled             = true
-  auto_mitigate       = true
-  frequency           = "PT1M"
-  window_size         = "PT5M"
+# # Alert: API Server Latency
+# resource "azurerm_monitor_metric_alert" "aks_api_server_latency" {
+#   name                = "aks-api-server-latency-${var.environment}"
+#   resource_group_name = azurerm_resource_group.main.name
+#   scopes              = [azurerm_kubernetes_cluster.main.id]
+#   description         = "Alert when Kubernetes API server latency is high"
+#   severity            = 2
+#   enabled             = true
+#   auto_mitigate       = true
+#   frequency           = "PT1M"
+#   window_size         = "PT5M"
 
-  criteria {
-    metric_namespace = "Microsoft.ContainerService/managedClusters"
-    metric_name      = "apiserver_request_duration_seconds"
-    aggregation      = "Average"
-    operator         = "GreaterThan"
-    threshold        = 1 # 1 second latency
-  }
+#   criteria {
+#     metric_namespace = "Microsoft.ContainerService/managedClusters"
+#     metric_name      = "apiserver_request_duration_seconds"
+#     aggregation      = "Average"
+#     operator         = "GreaterThan"
+#     threshold        = 1 # 1 second latency
+#   }
 
-  action {
-    action_group_id = azurerm_monitor_action_group.webapp_alerts.id
-  }
+#   action {
+#     action_group_id = azurerm_monitor_action_group.webapp_alerts.id
+#   }
 
-  tags = {
-    environment = var.environment
-  }
-}
+#   tags = {
+#     environment = var.environment
+#   }
+# }
 
 # Alert: Pending Pods
 resource "azurerm_monitor_metric_alert" "aks_pending_pods" {
@@ -335,7 +335,7 @@ resource "azurerm_monitor_metric_alert" "aks_pending_pods" {
   criteria {
     metric_namespace = "Microsoft.ContainerService/managedClusters"
     metric_name      = "kube_pod_status_phase"
-    aggregation      = "Count"
+    aggregation      = "Total"
     operator         = "GreaterThan"
     threshold        = 0 # Any pending pods for more than 15 minutes
   }
@@ -350,31 +350,31 @@ resource "azurerm_monitor_metric_alert" "aks_pending_pods" {
 }
 
 # Alert: OOM Killed Containers
-resource "azurerm_monitor_metric_alert" "aks_oom_killed" {
-  name                = "aks-oom-killed-${var.environment}"
-  resource_group_name = azurerm_resource_group.main.name
-  scopes              = [azurerm_kubernetes_cluster.main.id]
-  description         = "Alert when containers are killed due to OOM (Out of Memory)"
-  severity            = 1
-  enabled             = true
-  auto_mitigate       = true
-  frequency           = "PT1M"
-  window_size         = "PT5M"
+# resource "azurerm_monitor_metric_alert" "aks_oom_killed" {
+#   name                = "aks-oom-killed-${var.environment}"
+#   resource_group_name = azurerm_resource_group.main.name
+#   scopes              = [azurerm_kubernetes_cluster.main.id]
+#   description         = "Alert when containers are killed due to OOM (Out of Memory)"
+#   severity            = 1
+#   enabled             = true
+#   auto_mitigate       = true
+#   frequency           = "PT1M"
+#   window_size         = "PT5M"
 
-  criteria {
-    metric_namespace = "Microsoft.ContainerService/managedClusters"
-    metric_name      = "container_oom_events_total"
-    aggregation      = "Total"
-    operator         = "GreaterThan"
-    threshold        = 0 # Any OOM kills
-  }
+#   criteria {
+#     metric_namespace = "Microsoft.ContainerService/managedClusters"
+#     metric_name      = "container_oom_events_total"
+#     aggregation      = "Total"
+#     operator         = "GreaterThan"
+#     threshold        = 0 # Any OOM kills
+#   }
 
-  action {
-    action_group_id = azurerm_monitor_action_group.webapp_alerts.id
-  }
+#   action {
+#     action_group_id = azurerm_monitor_action_group.webapp_alerts.id
+#   }
 
-  tags = {
-    environment = var.environment
-  }
-}
+#   tags = {
+#     environment = var.environment
+#   }
+# }
 
