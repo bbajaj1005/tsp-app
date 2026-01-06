@@ -177,6 +177,26 @@ jobs:
               SCM_DO_BUILD_DURING_DEPLOYMENT="true" \
               BACKEND_API_URL="$BACKEND_URL" || true
           
+          # Set startup command - CRITICAL: Without this, the container terminates immediately
+          echo "Setting startup command to: npm start"
+          az webapp config set \
+            --name ${{ secrets.WEBAPP_NAME }} \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --startup-file "npm start" || echo "⚠️ Warning: Could not set startup file"
+          
+          # Verify startup command was set
+          echo "Verifying startup command..."
+          STARTUP_CMD=$(az webapp config show \
+            --name ${{ secrets.WEBAPP_NAME }} \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --query appCommandLine -o tsv)
+          if [ -z "$STARTUP_CMD" ] || [ "$STARTUP_CMD" == "" ]; then
+            echo "❌ ERROR: Startup command is still empty!"
+            echo "   Please set it manually: az webapp config set --name ${{ secrets.WEBAPP_NAME }} --resource-group ${{ secrets.RESOURCE_GROUP }} --startup-file 'npm start'"
+          else
+            echo "✓ Startup command set to: $STARTUP_CMD"
+          fi
+          
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
