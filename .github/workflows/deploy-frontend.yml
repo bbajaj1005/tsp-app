@@ -21,7 +21,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20'
       
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
@@ -150,6 +150,9 @@ jobs:
             },
             "dependencies": {
               "express": "^4.18.2"
+            },
+            "engines": {
+              "node": "20.x"
             }
           }
           EOF
@@ -173,7 +176,7 @@ jobs:
             --name ${{ secrets.WEBAPP_NAME }} \
             --resource-group ${{ secrets.RESOURCE_GROUP }} \
             --settings \
-              WEBSITE_NODE_DEFAULT_VERSION="18-lts" \
+              WEBSITE_NODE_DEFAULT_VERSION="20-lts" \
               SCM_DO_BUILD_DURING_DEPLOYMENT="true" \
               BACKEND_API_URL="$BACKEND_URL" || true
           

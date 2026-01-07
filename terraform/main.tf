@@ -201,14 +201,14 @@ resource "azurerm_linux_web_app" "main" {
   site_config {
     always_on = true
     application_stack {
-      node_version = "18-lts"
+      node_version = "20-lts"
     }
   }
 
   app_settings = {
     "REACT_APP_API_URL"                     = "http://${azurerm_kubernetes_cluster.main.private_fqdn}"
     "SCM_DO_BUILD_DURING_DEPLOYMENT"        = "true"
-    "WEBSITE_NODE_DEFAULT_VERSION"          = "18-lts"
+    "WEBSITE_NODE_DEFAULT_VERSION"          = "20-lts"
     "BACKEND_API_URL"                       = "http://52.160.32.57:80"
     "APPINSIGHTS_INSTRUMENTATIONKEY"        = azurerm_application_insights.ai.instrumentation_key
     "APPLICATIONINSIGHTS_CONNECTION_STRING" = azurerm_application_insights.ai.connection_string
