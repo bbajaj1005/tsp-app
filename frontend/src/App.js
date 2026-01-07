@@ -134,11 +134,6 @@ function App() {
     <div className="App">
       <header className="App-header">
         <h1>TSP Task Manager - All Tasks</h1>
-        <div style={{ fontSize: '14px', marginBottom: '10px', color: '#aaa' }}>
-          <p>Using relative API URLs (proxied through frontend server)</p>
-          <p>Frontend: <code>{window.location.origin}</code></p>
-          <p>Backend: <code>{process.env.REACT_APP_API_URL || window.REACT_APP_API_URL || 'Configured in server'}</code></p>
-        </div>
         
         {error && (
           <div className="error-message">
