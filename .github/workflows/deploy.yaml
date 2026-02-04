@@ -12,8 +12,8 @@ permissions:
   contents: read
 
 env:
-  TF_BACKEND_RG: POC-Kapil
-  TF_BACKEND_SA: tspsa01567rytg
+  TF_BACKEND_RG: avnet-backend
+  TF_BACKEND_SA: saavnetbackend
   TF_BACKEND_CONTAINER: infra
   TF_BACKEND_KEY: terraform.tfstate
 
