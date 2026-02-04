@@ -1,4 +1,5 @@
 ## Variables Used ##
+## Uodated location from West US to East US ##
 variable "location" {
   description = "Azure region for resources"
   type        = string
