@@ -321,34 +321,6 @@ resource "azurerm_monitor_metric_alert" "aks_disk_usage" {
 # }
 
 # Alert: Pending Pods
-resource "azurerm_monitor_metric_alert" "aks_pending_pods" {
-  name                = "aks-pending-pods-${var.environment}"
-  resource_group_name = azurerm_resource_group.main.name
-  scopes              = [azurerm_kubernetes_cluster.main.id]
-  description         = "Alert when pods are stuck in pending state"
-  severity            = 2
-  enabled             = true
-  auto_mitigate       = true
-  frequency           = "PT5M"
-  window_size         = "PT15M"
-
-  criteria {
-    metric_namespace = "Microsoft.ContainerService/managedClusters"
-    metric_name      = "kube_pod_status_phase"
-    aggregation      = "Total"
-    operator         = "GreaterThan"
-    threshold        = 0 # Any pending pods for more than 15 minutes
-  }
-
-  action {
-    action_group_id = azurerm_monitor_action_group.webapp_alerts.id
-  }
-
-  tags = {
-    environment = var.environment
-  }
-}
-
 # Alert: OOM Killed Containers
 # resource "azurerm_monitor_metric_alert" "aks_oom_killed" {
 #   name                = "aks-oom-killed-${var.environment}"
