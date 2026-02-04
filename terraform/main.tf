@@ -161,6 +161,7 @@ resource "azurerm_kubernetes_cluster" "main" {
 }
 
 # App Service Plan
+## Updating the sku_nme from P1v2 to S1 
 resource "azurerm_service_plan" "main" {
   name                = "asp-tsp-${var.environment}"
   resource_group_name = azurerm_resource_group.main.name
