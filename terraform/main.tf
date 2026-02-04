@@ -85,7 +85,7 @@ resource "azurerm_subnet" "private_endpoints" {
 resource "azurerm_mssql_server" "main" {
   name                          = "sql-tsp-${var.environment}-${random_string.suffix.result}"
   resource_group_name           = azurerm_resource_group.main.name
-  location                      = azurerm_resource_group.main.location
+  location                      = "West US"
   version                       = "12.0"
   administrator_login           = "sqladmin"
   administrator_login_password  = var.sql_admin_password
