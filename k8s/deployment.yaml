@@ -92,6 +92,11 @@ spec:
             configMapKeyRef:
               name: backend-config
               key: OTEL_TRACES_EXPORTER
+        - name: OTEL_COLLECTOR_URL
+          valueFrom:
+            configMapKeyRef:
+              name: backend-config
+              key: OTEL_COLLECTOR_URL
         resources:
           requests:
             memory: "256Mi"
