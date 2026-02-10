@@ -1,6 +1,6 @@
 # Frontend Application
 
-React-based frontend for the task management application.
+React-based frontend for the task management application. Instrumented with OpenTelemetry (browser); traces are sent to OTLP (same-origin `/api/otel` by default, proxied to backend → collector → Tempo).
 
 ## Local Development
 
