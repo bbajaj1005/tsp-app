@@ -8,7 +8,7 @@ data:
   NODE_ENV: "development"
   LOG_LEVEL: "info"
   # OTLP proxy: backend forwards frontend traces to this collector (for Azure Web App browser -> backend -> collector)
-  OTEL_COLLECTOR_URL: "http://otel.monitoring.svc.cluster.local:4318"
+  OTEL_COLLECTOR_URL: "http://otel-collector.monitoring.svc.cluster.local:4318"
   # OpenTelemetry: load auto-instrumentation before app (express, http traced to OTLP)
   NODE_OPTIONS: "--require @opentelemetry/auto-instrumentations-node/register"
   OTEL_SERVICE_NAME: "backend-api"
